@@ -10,7 +10,7 @@
     <div class="max-w-6xl mx-auto">
         <header class="mb-8 border-b pb-6 border-slate-200">
             <h1 class="text-3xl font-black text-slate-900">Odoo Precision Quote Tool</h1>
-            <p class="text-slate-500">Customized Discount Tiers (19.67% Standard / 19.94% Custom)</p>
+            <p class="text-slate-500">Professional Financial Modeling (Value Comparison Enabled)</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -52,11 +52,11 @@
                         </div>
                         <div class="space-y-3">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-slate-400 uppercase">Workers ($16)</span>
+                                <span class="text-xs font-bold text-slate-400 uppercase">Workers ($16.00)</span>
                                 <input type="number" id="workers" value="1" min="1" class="w-20 border p-1 rounded text-center" oninput="calculate()">
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-slate-400 uppercase">Storage (GB)</span>
+                                <span class="text-xs font-bold text-slate-400 uppercase">Storage (GB) ($0.20)</span>
                                 <input type="number" id="storage" value="5" min="1" class="w-20 border p-1 rounded text-center" oninput="calculate()">
                             </div>
                         </div>
@@ -68,22 +68,22 @@
                             <input type="checkbox" id="imp_toggle" class="w-6 h-6 accent-emerald-600" onchange="calculate()" checked>
                         </div>
                         <select id="pack" class="w-full border p-3 rounded-xl bg-slate-50 text-sm" onchange="calculate()">
-                            <option value="2500">25 Hour Pack ($2,500)</option>
-                            <option value="5000">50 Hour Pack ($5,000)</option>
-                            <option value="10000">100 Hour Pack ($10,000)</option>
+                            <option value="2500">25 Hour Pack ($2,500.00)</option>
+                            <option value="5000">50 Hour Pack ($5,000.00)</option>
+                            <option value="10000">100 Hour Pack ($10,000.00)</option>
                         </select>
                     </section>
                 </div>
 
                 <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold mb-4">Timeline Breakdown</h2>
+                    <h2 class="text-lg font-bold mb-4">Contract Breakdown</h2>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm">
                             <thead>
                                 <tr class="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-widest">
                                     <th class="py-3">Period</th>
-                                    <th class="py-3">Software Cost</th>
-                                    <th class="py-3">Hosting</th>
+                                    <th class="py-3 text-center">Software</th>
+                                    <th class="py-3 text-center">Hosting</th>
                                     <th class="py-3 text-right">Subtotal</th>
                                 </tr>
                             </thead>
@@ -95,27 +95,37 @@
 
             <div class="lg:col-span-1">
                 <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-10 border-t-4 border-purple-500">
-                    <h2 class="text-xl font-bold mb-6">Total Investment</h2>
-                    <div id="grandTotal" class="text-5xl font-black text-white mb-2">$0.00</div>
-                    <p id="promo_note" class="text-emerald-400 text-xs font-bold mb-8 uppercase tracking-tighter"></p>
+                    <h2 class="text-xl font-bold mb-6 text-slate-300">Investment Summary</h2>
                     
-                    <div class="space-y-4 text-sm border-t border-slate-800 pt-6">
+                    <div id="grandTotal" class="text-5xl font-black text-white mb-2">$0.00</div>
+                    <p id="promo_note" class="text-emerald-400 text-xs font-bold mb-6 uppercase tracking-tighter"></p>
+
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 mb-8">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1">Effective Software Rate</p>
+                        <div class="flex items-baseline gap-2">
+                            <span id="effectiveRate" class="text-2xl font-bold text-purple-400"></span>
+                            <span class="text-xs text-slate-400">/user/mo</span>
+                        </div>
+                        <p id="effectiveSavings" class="text-[10px] text-emerald-400 italic mt-1"></p>
+                    </div>
+                    
+                    <div class="space-y-4 text-sm border-t border-slate-800 pt-6 mb-6">
                         <div class="flex justify-between">
-                            <span class="text-slate-400">Software Subtotal</span>
+                            <span class="text-slate-400">Licensing</span>
                             <span id="side_soft" class="font-mono"></span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-400">Hosting Subtotal</span>
+                            <span class="text-slate-400">Hosting</span>
                             <span id="side_sh" class="font-mono"></span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-400">Implementation</span>
-                            <span id="side_imp" class="font-mono"></span>
+                            <span id="side_imp" class="font-mono text-emerald-400"></span>
                         </div>
                     </div>
 
-                    <button onclick="window.print()" class="w-full mt-8 bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-500 transition-all shadow-lg">
-                        Export Quote
+                    <button onclick="window.print()" class="w-full bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-500 transition-all shadow-lg">
+                        Print Quote
                     </button>
                 </div>
             </div>
@@ -123,6 +133,10 @@
     </div>
 
     <script>
+        function formatCurrency(val) {
+            return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         function calculate() {
             const plan = document.getElementById('plan').value;
             const users = parseInt(document.getElementById('users').value) || 0;
@@ -130,10 +144,9 @@
             const shOn = document.getElementById('sh_toggle').checked;
             const impOn = document.getElementById('imp_toggle').checked;
 
-            // Define specific rates and precision discounts
             const rates = {
-                standard: { annual: 373, monthly: 38.90, discount: 0.1967 },
-                custom: { annual: 732, monthly: 76.20, discount: 0.1994 }
+                standard: { annual: 373.00, monthly: 38.90, discount: 0.1967 },
+                custom: { annual: 732.00, monthly: 76.20, discount: 0.1994 }
             };
 
             const selected = rates[plan];
@@ -141,28 +154,25 @@
             let totalSoft = 0;
             let totalSh = 0;
             let impFee = impOn ? parseFloat(document.getElementById('pack').value) : 0;
-            const shMo = shOn ? (parseInt(document.getElementById('workers').value) * 16) + (parseInt(document.getElementById('storage').value) * 0.20) : 0;
+            const shMo = shOn ? (parseInt(document.getElementById('workers').value) * 16.00) + (parseInt(document.getElementById('storage').value) * 0.20) : 0;
 
-            if (term === 0) { // Monthly with 12-month promo
+            if (term === 0) {
+                // Monthly with 12-month promo
                 const discountedMo = (selected.monthly * (1 - selected.discount)) * users;
-                totalSoft = discountedMo; // Show current month
+                totalSoft = discountedMo * 1; 
                 totalSh = shMo;
 
                 timelineHtml = `
                     <tr class="bg-emerald-50/50">
                         <td class="py-4 font-bold">Months 1-12 (Promo)</td>
-                        <td>$${discountedMo.toFixed(2)} /mo</td>
-                        <td>$${shMo.toFixed(2)} /mo</td>
-                        <td class="text-right font-bold">$${(discountedMo + shMo).toFixed(2)}</td>
-                    </tr>
-                    <tr class="text-slate-400 italic">
-                        <td class="py-4">Month 13+ (Standard)</td>
-                        <td>$${(selected.monthly * users).toFixed(2)} /mo</td>
-                        <td>$${shMo.toFixed(2)} /mo</td>
-                        <td class="text-right">$${(selected.monthly * users + shMo).toFixed(2)}</td>
+                        <td class="text-center font-mono">$${formatCurrency(discountedMo)}</td>
+                        <td class="text-center font-mono">$${formatCurrency(shMo)}</td>
+                        <td class="text-right font-bold">$${formatCurrency(discountedMo + shMo)}</td>
                     </tr>
                 `;
-                document.getElementById('promo_note').innerText = `12-Month ${ (selected.discount * 100).toFixed(2) }% Discount Locked`;
+                document.getElementById('effectiveRate').innerText = `$${formatCurrency(selected.monthly * (1 - selected.discount))}`;
+                document.getElementById('effectiveSavings').innerText = `Locked for 12 months`;
+                document.getElementById('promo_note').innerText = `12-Month Promo Monthly Rate`;
             } else {
                 // Multi-Year
                 for (let i = 1; i <= term; i++) {
@@ -176,22 +186,31 @@
 
                     timelineHtml += `
                         <tr class="border-b border-slate-50 ${isY1 ? 'bg-purple-50/50' : ''}">
-                            <td class="py-4 font-bold">Year ${i} ${isY1 ? '<span class="text-[10px] bg-purple-200 text-purple-800 px-2 py-1 rounded ml-2">PROMO YEAR</span>' : ''}</td>
-                            <td>$${sCost.toLocaleString()}</td>
-                            <td>$${hCost.toLocaleString()}</td>
-                            <td class="text-right font-bold">$${yTotal.toLocaleString()}</td>
+                            <td class="py-4 font-bold">Year ${i} ${isY1 ? '<span class="text-[10px] bg-purple-200 text-purple-800 px-2 py-1 rounded ml-2">PROMO</span>' : ''}</td>
+                            <td class="text-center font-mono">$${formatCurrency(sCost)}</td>
+                            <td class="text-center font-mono">$${formatCurrency(hCost)}</td>
+                            <td class="text-right font-bold">$${formatCurrency(yTotal)}</td>
                         </tr>
                     `;
                 }
-                document.getElementById('promo_note').innerText = `Full ${term}-Year Contract Value`;
+                
+                // Calculate Effective Rate: Total Soft / (Total Months * Users)
+                const totalMonths = term * 12;
+                const effRate = totalSoft / (totalMonths * users);
+                const standardMonthly = selected.annual / 12;
+                const savingsPerUserMo = standardMonthly - effRate;
+
+                document.getElementById('effectiveRate').innerText = `$${formatCurrency(effRate)}`;
+                document.getElementById('effectiveSavings').innerText = `Saves $${formatCurrency(savingsPerUserMo)}/mo per user vs. Standard`;
+                document.getElementById('promo_note').innerText = `Total ${term}-Year Investment`;
             }
 
             const grandTotal = totalSoft + totalSh + impFee;
             document.getElementById('timeline_body').innerHTML = timelineHtml;
-            document.getElementById('side_soft').innerText = `$${totalSoft.toLocaleString()}`;
-            document.getElementById('side_sh').innerText = `$${totalSh.toLocaleString()}`;
-            document.getElementById('side_imp').innerText = `$${impFee.toLocaleString()}`;
-            document.getElementById('grandTotal').innerText = `$${grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('side_soft').innerText = `$${formatCurrency(totalSoft)}`;
+            document.getElementById('side_sh').innerText = `$${formatCurrency(totalSh)}`;
+            document.getElementById('side_imp').innerText = `$${formatCurrency(impFee)}`;
+            document.getElementById('grandTotal').innerText = `$${formatCurrency(grandTotal)}`;
         }
         calculate();
     </script>
