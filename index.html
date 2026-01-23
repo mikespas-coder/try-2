@@ -10,12 +10,11 @@
     <div class="max-w-6xl mx-auto">
         <header class="mb-8 border-b pb-6 border-slate-200">
             <h1 class="text-3xl font-black text-slate-900">Odoo Precision Quote Tool</h1>
-            <p class="text-slate-500">Professional Financial Modeling (Value Comparison Enabled)</p>
+            <p class="text-slate-500">Includes 30% Bi-Yearly Inflation Forecasting</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6">
-                
                 <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                     <h2 class="text-lg font-bold mb-4 text-purple-700">1. Software & Contract</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -23,7 +22,7 @@
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Plan</label>
                             <select id="plan" class="w-full border p-3 rounded-xl bg-slate-50 font-semibold" onchange="calculate()">
                                 <option value="standard">Standard Plan</option>
-                                <option value="custom">Custom Plan</option>
+                                <option value="custom" selected>Custom Plan</option>
                             </select>
                         </div>
                         <div>
@@ -36,7 +35,7 @@
                                 <option value="0">Monthly (12-Mo Promo)</option>
                                 <option value="1">1 Year Contract</option>
                                 <option value="2">2 Year Contract</option>
-                                <option value="3">3 Year Contract</option>
+                                <option value="3" selected>3 Year Contract</option>
                                 <option value="4">4 Year Contract</option>
                                 <option value="5">5 Year Contract</option>
                             </select>
@@ -61,7 +60,6 @@
                             </div>
                         </div>
                     </section>
-
                     <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-lg font-bold text-emerald-700">3. Implementation</h2>
@@ -76,7 +74,7 @@
                 </div>
 
                 <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold mb-4">Contract Breakdown</h2>
+                    <h2 class="text-lg font-bold mb-4">Contract Breakdown (Fixed Rates)</h2>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm">
                             <thead>
@@ -93,10 +91,9 @@
                 </section>
             </div>
 
-            <div class="lg:col-span-1">
-                <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-10 border-t-4 border-purple-500">
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border-t-4 border-purple-500">
                     <h2 class="text-xl font-bold mb-6 text-slate-300">Investment Summary</h2>
-                    
                     <div id="grandTotal" class="text-5xl font-black text-white mb-2">$0.00</div>
                     <p id="promo_note" class="text-emerald-400 text-xs font-bold mb-6 uppercase tracking-tighter"></p>
 
@@ -106,36 +103,46 @@
                             <span id="effectiveRate" class="text-2xl font-bold text-purple-400"></span>
                             <span class="text-xs text-slate-400">/user/mo</span>
                         </div>
-                        <p id="effectiveSavings" class="text-[10px] text-emerald-400 italic mt-1"></p>
-                    </div>
-                    
-                    <div class="space-y-4 text-sm border-t border-slate-800 pt-6 mb-6">
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Licensing</span>
-                            <span id="side_soft" class="font-mono"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Hosting</span>
-                            <span id="side_sh" class="font-mono"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Implementation</span>
-                            <span id="side_imp" class="font-mono text-emerald-400"></span>
-                        </div>
                     </div>
 
-                    <button onclick="window.print()" class="w-full bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-500 transition-all shadow-lg">
-                        Print Quote
-                    </button>
+                    <div class="space-y-4 text-sm border-t border-slate-800 pt-6 mb-6">
+                        <div class="flex justify-between"><span class="text-slate-400">Licensing</span><span id="side_soft" class="font-mono text-white"></span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">Hosting</span><span id="side_sh" class="font-mono text-white"></span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">Implementation</span><span id="side_imp" class="font-mono text-emerald-400 text-white"></span></div>
+                    </div>
+                    <button onclick="window.print()" class="w-full bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-500 transition-all">Print Quote</button>
+                </div>
+
+                <div id="inflationBox" class="bg-amber-50 p-6 rounded-3xl border border-amber-200 shadow-lg">
+                    <h3 class="text-amber-800 font-bold flex items-center gap-2 mb-4">
+                        ⚠️ Future Price Forecast
+                    </h3>
+                    <div class="space-y-3">
+                        <p class="text-xs text-amber-700 leading-relaxed">
+                            Market rates for the <strong>Custom Plan</strong> are projected to increase <strong>30% every 24 months</strong> based on historical 2026 data.
+                        </p>
+                        <div class="border-t border-amber-200 pt-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-amber-900 font-medium">Estimated 2028 Rate:</span>
+                                <span id="futureRate28" class="font-bold text-amber-900"></span>
+                            </div>
+                            <div class="flex justify-between text-sm mt-1">
+                                <span class="text-amber-900 font-medium">Estimated 2030 Rate:</span>
+                                <span id="futureRate30" class="font-bold text-amber-900"></span>
+                            </div>
+                        </div>
+                        <div class="bg-amber-100 p-3 rounded-lg mt-2">
+                            <p class="text-[10px] text-amber-800 uppercase font-black">Contract Benefit</p>
+                            <p class="text-xs text-amber-900">This contract locks your rate at the current baseline, avoiding these projected increases.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        function formatCurrency(val) {
-            return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
+        function formatCurrency(val) { return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
         function calculate() {
             const plan = document.getElementById('plan').value;
@@ -156,61 +163,37 @@
             let impFee = impOn ? parseFloat(document.getElementById('pack').value) : 0;
             const shMo = shOn ? (parseInt(document.getElementById('workers').value) * 16.00) + (parseInt(document.getElementById('storage').value) * 0.20) : 0;
 
-            if (term === 0) {
-                // Monthly with 12-month promo
-                const discountedMo = (selected.monthly * (1 - selected.discount)) * users;
-                totalSoft = discountedMo * 1; 
-                totalSh = shMo;
+            // Inflation Math
+            const rate2028 = selected.annual * 1.30;
+            const rate2030 = rate2028 * 1.30;
+            document.getElementById('futureRate28').innerText = `$${formatCurrency(rate2028)} /yr`;
+            document.getElementById('futureRate30').innerText = `$${formatCurrency(rate2030)} /yr`;
+            document.getElementById('inflationBox').style.display = (plan === 'custom') ? 'block' : 'none';
 
-                timelineHtml = `
-                    <tr class="bg-emerald-50/50">
-                        <td class="py-4 font-bold">Months 1-12 (Promo)</td>
-                        <td class="text-center font-mono">$${formatCurrency(discountedMo)}</td>
-                        <td class="text-center font-mono">$${formatCurrency(shMo)}</td>
-                        <td class="text-right font-bold">$${formatCurrency(discountedMo + shMo)}</td>
-                    </tr>
-                `;
+            if (term === 0) {
+                const discountedMo = (selected.monthly * (1 - selected.discount)) * users;
+                totalSoft = discountedMo; totalSh = shMo;
+                timelineHtml = `<tr><td class="py-4 font-bold">Mo 1-12 (Promo)</td><td class="text-center">$${formatCurrency(discountedMo)}</td><td class="text-center">$${formatCurrency(shMo)}</td><td class="text-right font-bold">$${formatCurrency(discountedMo + shMo)}</td></tr>`;
                 document.getElementById('effectiveRate').innerText = `$${formatCurrency(selected.monthly * (1 - selected.discount))}`;
-                document.getElementById('effectiveSavings').innerText = `Locked for 12 months`;
                 document.getElementById('promo_note').innerText = `12-Month Promo Monthly Rate`;
             } else {
-                // Multi-Year
                 for (let i = 1; i <= term; i++) {
                     const isY1 = (i === 1);
                     const sCost = isY1 ? (selected.annual * (1 - selected.discount) * users) : (selected.annual * users);
                     const hCost = shMo * 12;
-                    const yTotal = sCost + hCost + (isY1 ? impFee : 0);
-
-                    totalSoft += sCost;
-                    totalSh += hCost;
-
-                    timelineHtml += `
-                        <tr class="border-b border-slate-50 ${isY1 ? 'bg-purple-50/50' : ''}">
-                            <td class="py-4 font-bold">Year ${i} ${isY1 ? '<span class="text-[10px] bg-purple-200 text-purple-800 px-2 py-1 rounded ml-2">PROMO</span>' : ''}</td>
-                            <td class="text-center font-mono">$${formatCurrency(sCost)}</td>
-                            <td class="text-center font-mono">$${formatCurrency(hCost)}</td>
-                            <td class="text-right font-bold">$${formatCurrency(yTotal)}</td>
-                        </tr>
-                    `;
+                    totalSoft += sCost; totalSh += hCost;
+                    timelineHtml += `<tr class="${isY1 ? 'bg-purple-50/50' : ''} border-b border-slate-50"><td class="py-4 font-bold">Year ${i}</td><td class="text-center">$${formatCurrency(sCost)}</td><td class="text-center">$${formatCurrency(hCost)}</td><td class="text-right font-bold">$${formatCurrency(sCost + hCost + (isY1 ? impFee : 0))}</td></tr>`;
                 }
-                
-                // Calculate Effective Rate: Total Soft / (Total Months * Users)
-                const totalMonths = term * 12;
-                const effRate = totalSoft / (totalMonths * users);
-                const standardMonthly = selected.annual / 12;
-                const savingsPerUserMo = standardMonthly - effRate;
-
+                const effRate = totalSoft / (term * 12 * users);
                 document.getElementById('effectiveRate').innerText = `$${formatCurrency(effRate)}`;
-                document.getElementById('effectiveSavings').innerText = `Saves $${formatCurrency(savingsPerUserMo)}/mo per user vs. Standard`;
                 document.getElementById('promo_note').innerText = `Total ${term}-Year Investment`;
             }
 
-            const grandTotal = totalSoft + totalSh + impFee;
             document.getElementById('timeline_body').innerHTML = timelineHtml;
             document.getElementById('side_soft').innerText = `$${formatCurrency(totalSoft)}`;
             document.getElementById('side_sh').innerText = `$${formatCurrency(totalSh)}`;
             document.getElementById('side_imp').innerText = `$${formatCurrency(impFee)}`;
-            document.getElementById('grandTotal').innerText = `$${formatCurrency(grandTotal)}`;
+            document.getElementById('grandTotal').innerText = `$${formatCurrency(totalSoft + totalSh + impFee)}`;
         }
         calculate();
     </script>
