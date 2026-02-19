@@ -10,7 +10,7 @@
     <div class="max-w-6xl mx-auto">
         <header class="mb-8 border-b pb-6 border-slate-200">
             <h1 class="text-3xl font-black text-slate-900">Odoo Precision Quote Tool</h1>
-            <p class="text-slate-500 text-lg">Multi-Year Analysis & Eligibility Logic</p>
+            <p class="text-slate-500 text-lg">Includes Staging Branches & Price Protection Analysis</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -62,7 +62,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
                         <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-blue-700">2. Odoo.SH</h2>
+                            <h2 class="text-lg font-bold text-blue-700">2. Odoo.SH Hosting</h2>
                             <input type="checkbox" id="sh_toggle" class="w-6 h-6 accent-blue-600 cursor-pointer" onchange="calculate()" checked>
                         </div>
                         <div class="space-y-3">
@@ -73,6 +73,10 @@
                             <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-slate-500 uppercase">Storage (GB) ($0.20/mo)</span>
                                 <input type="number" id="storage" value="5" min="1" class="w-20 border p-2 rounded text-center" oninput="calculate()">
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Staging Branch ($172.80/yr)</span>
+                                <input type="number" id="staging" value="1" min="0" class="w-20 border p-2 rounded text-center" oninput="calculate()">
                             </div>
                         </div>
                     </section>
@@ -193,14 +197,19 @@
             const finalImpCost = impOn ? (grossImpPack * 0.85) : 0;
             const impSavings = impOn ? (grossImpPack * 0.15) : 0;
 
-            const shMo = shOn ? (parseInt(document.getElementById('workers').value) * 16.00) + (parseInt(document.getElementById('storage').value) * 0.20) : 0;
+            // Hosting Math including Staging Branch ($172.80/yr -> $14.40/mo)
+            const workersCount = parseInt(document.getElementById('workers').value) || 0;
+            const storageGB = parseInt(document.getElementById('storage').value) || 0;
+            const stagingCount = parseInt(document.getElementById('staging').value) || 0;
+            
+            const shMo = shOn ? (workersCount * 16.00) + (storageGB * 0.20) + (stagingCount * 14.40) : 0;
 
             let timelineHtml = "";
             let totalSoft = 0;
             let totalSh = 0;
             let softwareSavings = 0;
 
-            // HANDLE SECTIONS VISIBILITY
+            // Handle Sections Visibility
             const isFinancingEligible = term >= 2;
             const isOneYear = term === 1;
 
@@ -210,14 +219,12 @@
             document.getElementById('inflationBox').style.opacity = (plan === 'custom') ? "1" : "0.2";
 
             if (term === 0) {
-                // Monthly
                 const sBase = selected.monthly * users;
                 const sDisc = (selected.monthly * (1 - selected.discount)) * users;
                 totalSoft = sDisc; totalSh = shMo;
                 softwareSavings = sBase - sDisc;
                 timelineHtml = `<tr class="bg-emerald-50"><td class="py-4 px-2 font-bold">Month 1 (Promo)</td><td class="text-center font-mono">$${formatCurrency(sDisc)}</td><td class="text-center font-mono">$${formatCurrency(shMo)}</td><td class="text-right font-bold">$${formatCurrency(sDisc + shMo)}</td></tr>`;
             } else {
-                // Annual/Multi-Year
                 for (let i = 1; i <= term; i++) {
                     const isY1 = (i === 1);
                     const annualBase = selected.annual * users;
