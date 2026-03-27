@@ -100,30 +100,43 @@
                     </div>
                 </section>
 
-                <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-                    <h2 class="text-lg font-bold mb-4">Contract Timeline</h2>
-                    <table class="w-full text-left text-sm"><tbody id="timeline_body"></tbody></table>
+                <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                    <h2 class="text-lg font-bold mb-4">Detailed Timeline Breakdown</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-widest">
+                                    <th class="py-3 px-2">Period</th>
+                                    <th class="py-3 text-center">Software</th>
+                                    <th class="py-3 text-center">Hosting</th>
+                                    <th class="py-3 text-center">Impl.</th>
+                                    <th class="py-3 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timeline_body"></tbody>
+                        </table>
+                    </div>
                 </section>
             </div>
 
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl border-t-8 border-purple-600">
-                    <h2 class="text-xl font-bold mb-6 text-slate-400">Quote Summary</h2>
+                <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl border-t-8 border-purple-600 sticky top-10">
+                    <h2 class="text-xl font-bold mb-6 text-slate-400">Summary</h2>
                     <div id="grandTotal" class="text-4xl font-black text-white mb-2">$0.00</div>
                     
                     <div class="bg-emerald-500/10 border border-emerald-500/50 rounded-xl p-3 mb-6">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Total Program Savings</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Program Savings</p>
                         <p id="totalSavings" class="text-2xl font-black text-emerald-400"></p>
                     </div>
 
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-[10px] font-black uppercase text-slate-400">Spread Upfront Costs</span>
+                            <span class="text-[10px] font-black uppercase text-slate-400">Spread Costs</span>
                             <input type="checkbox" id="amort_toggle" class="w-4 h-4 accent-purple-500" onchange="calculate()">
                         </div>
                         <div id="amort_box" class="hidden">
                             <p id="amort_value" class="text-2xl font-black text-purple-400"></p>
-                            <p class="text-[10px] text-slate-500 italic uppercase">Equal Monthly Allocation</p>
+                            <p class="text-[10px] text-slate-500 italic uppercase">Per Month (Avg)</p>
                         </div>
                     </div>
 
@@ -190,6 +203,7 @@
             const hours = document.getElementById('pack').value;
             const impCost = impOn ? (p.packs[hours] * 0.85) : 0;
             const impSavings = impOn ? (p.packs[hours] * 0.15) : 0;
+            
             const shAnnual = shOn ? (parseInt(document.getElementById('workers').value) * p.shWorker) + 
                                      (parseInt(document.getElementById('staging').value) * p.shStaging) + 
                                      (parseInt(document.getElementById('storage').value) * p.shStorage) : 0;
@@ -199,33 +213,33 @@
             let softSavings = 0;
 
             if (term === 0) {
-                const moCost = (selPlan.monthly * (1 - discountRate)) * users;
-                totalSoft = moCost;
-                timelineHtml = `<tr class="bg-emerald-50 font-bold"><td class="p-4">Month 1 (Promo)</td><td class="text-right">$${formatC(moCost + (shAnnual/12))}</td></tr>`;
+                const sDisc = (selPlan.monthly * (1 - discountRate)) * users;
+                const hMo = shAnnual / 12;
+                totalSoft = sDisc;
+                timelineHtml = `<tr class="bg-emerald-50 font-bold"><td class="p-4">Month 1</td><td class="text-center">$${formatC(sDisc)}</td><td class="text-center">$${formatC(hMo)}</td><td class="text-center">$${formatC(impCost)}</td><td class="text-right">$${formatC(sDisc + hMo + impCost)}</td></tr>`;
                 document.getElementById('finance_section').classList.add('hidden');
-                document.getElementById('side_finance_card').classList.add('hidden');
             } else {
                 for (let i = 1; i <= term; i++) {
                     const isY1 = (i === 1);
                     const ySoft = isY1 ? (selPlan.annual * (1 - discountRate) * users) : (selPlan.annual * users);
                     if(isY1) softSavings = (selPlan.annual * users) - ySoft;
                     totalSoft += ySoft;
-                    timelineHtml += `<tr class="border-b ${isY1 ? 'bg-purple-50 font-bold' : ''}"><td class="p-4">Year ${i}</td><td class="text-right">$${formatC(ySoft + shAnnual + (isY1 ? impCost : 0))}</td></tr>`;
+                    const yImp = isY1 ? impCost : 0;
+                    timelineHtml += `<tr class="border-b ${isY1 ? 'bg-purple-50 font-bold' : ''}"><td class="p-4">Year ${i}</td><td class="text-center">$${formatC(ySoft)}</td><td class="text-center">$${formatC(shAnnual)}</td><td class="text-center">$${formatC(yImp)}</td><td class="text-right">$${formatC(ySoft + shAnnual + yImp)}</td></tr>`;
                 }
                 
-                // Finance Logic (USD Only & Term >= 2)
                 const showFinance = (currency === 'USD' && term >= 2);
                 document.getElementById('finance_section').classList.toggle('hidden', !showFinance);
                 document.getElementById('side_finance_card').classList.toggle('hidden', !showFinance);
                 
                 if(showFinance) {
                     const principal = totalSoft + (shAnnual * term) + impCost;
-                    const monthlyRate = currentAPR / 12;
-                    const numPayments = term * 12;
-                    const monthlyP = (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numPayments));
+                    const r = currentAPR / 12;
+                    const n = term * 12;
+                    const monthlyP = (principal * r) / (1 - Math.pow(1 + r, -n));
                     document.getElementById('finance_payment').innerText = `$${formatC(monthlyP)}`;
                     document.getElementById('side_finance_payment').innerText = `$${formatC(monthlyP)}`;
-                    document.getElementById('finance_term_label').innerText = numPayments;
+                    document.getElementById('finance_term_label').innerText = n;
                     document.getElementById('finance_apr_label').innerText = (currentAPR * 100).toFixed(2) + "%";
                 }
             }
