@@ -11,11 +11,11 @@
         <header class="mb-8 flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h1 class="text-3xl font-black text-slate-900 tracking-tight">Odoo Global Quote Builder</h1>
-                <p class="text-slate-500 font-medium">19.95% First-Year Discount Applied Globally</p>
+                <p class="text-slate-500 font-medium italic">19.95% First-Year Discount Applied</p>
             </div>
             <div class="bg-slate-200 p-1 rounded-xl flex shadow-inner">
-                <button onclick="setCurrency('USD')" id="btnUSD" class="px-6 py-2 rounded-lg font-bold transition-all bg-white shadow-sm text-purple-700">USD $</button>
-                <button onclick="setCurrency('CAD')" id="btnCAD" class="px-6 py-2 rounded-lg font-bold transition-all text-slate-600">CAD $</button>
+                <button onclick="setCurrency('USD')" id="btnUSD" class="px-6 py-2 rounded-lg font-bold transition-all bg-white shadow-sm text-purple-700">🇺🇸 USD</button>
+                <button onclick="setCurrency('CAD')" id="btnCAD" class="px-6 py-2 rounded-lg font-bold transition-all text-slate-600">🇨🇦 CAD</button>
             </div>
         </header>
 
@@ -79,22 +79,37 @@
                             <option value="100" selected>100 Hours (Pro)</option>
                             <option value="200">200 Hours (Enterprise)</option>
                         </select>
-                        <p class="text-[10px] text-emerald-600 font-bold mt-2 uppercase italic">15% Discount Applied Automatically</p>
                     </section>
                 </div>
 
+                <section id="finance_section" class="bg-slate-800 p-6 rounded-2xl shadow-xl text-white border-l-8 border-emerald-500 hidden">
+                    <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
+                        <h2 class="text-xl font-bold">Financing (USD Only)</h2>
+                        <div class="inline-flex rounded-md shadow-sm">
+                            <button onclick="setAPR(0.08)" id="apr8" class="px-4 py-2 text-xs font-bold border border-slate-600 rounded-l-lg bg-slate-700">8%</button>
+                            <button onclick="setAPR(0.10)" id="apr10" class="px-4 py-2 text-xs font-bold border-t border-b border-slate-600">10%</button>
+                            <button onclick="setAPR(0.12)" id="apr12" class="px-4 py-2 text-xs font-bold border border-slate-600 rounded-r-lg">12%</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><p class="text-slate-400 text-xs uppercase">Monthly Payment</p><p id="finance_payment" class="text-3xl font-black text-emerald-400"></p></div>
+                        <div class="text-xs text-slate-300">
+                            <p>Term: <span id="finance_term_label" class="font-bold text-white"></span> Months</p>
+                            <p>APR: <span id="finance_apr_label" class="font-bold text-emerald-400">8.00%</span></p>
+                        </div>
+                    </div>
+                </section>
+
                 <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
                     <h2 class="text-lg font-bold mb-4">Contract Timeline</h2>
-                    <table class="w-full text-left text-sm">
-                        <tbody id="timeline_body"></tbody>
-                    </table>
+                    <table class="w-full text-left text-sm"><tbody id="timeline_body"></tbody></table>
                 </section>
             </div>
 
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl border-t-8 border-emerald-500">
-                    <h2 class="text-xl font-bold mb-6 text-slate-400">Total Investment</h2>
-                    <div id="grandTotal" class="text-5xl font-black text-white mb-2">$0.00</div>
+                <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl border-t-8 border-purple-600">
+                    <h2 class="text-xl font-bold mb-6 text-slate-400">Quote Summary</h2>
+                    <div id="grandTotal" class="text-4xl font-black text-white mb-2">$0.00</div>
                     
                     <div class="bg-emerald-500/10 border border-emerald-500/50 rounded-xl p-3 mb-6">
                         <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Total Program Savings</p>
@@ -108,11 +123,16 @@
                         </div>
                         <div id="amort_box" class="hidden">
                             <p id="amort_value" class="text-2xl font-black text-purple-400"></p>
-                            <p class="text-[10px] text-slate-500 italic">Per month for the entire term</p>
+                            <p class="text-[10px] text-slate-500 italic uppercase">Equal Monthly Allocation</p>
                         </div>
                     </div>
 
-                    <button onclick="window.print()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-xl shadow-lg">PRINT QUOTE</button>
+                    <div id="side_finance_card" class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 hidden">
+                        <p class="text-[10px] font-black uppercase text-slate-400 mb-1">Financed Monthly</p>
+                        <p id="side_finance_payment" class="text-2xl font-bold text-emerald-400"></p>
+                    </div>
+
+                    <button onclick="window.print()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-xl shadow-lg">PRINT PDF</button>
                 </div>
             </div>
         </div>
@@ -120,23 +140,20 @@
 
     <script>
         let currency = 'USD';
+        let currentAPR = 0.08;
         const discountRate = 0.1995;
 
         const pricing = {
             USD: {
                 standard: { annual: 373, monthly: 38.90 },
                 custom: { annual: 732, monthly: 76.20 },
-                shWorker: 192, // Annual
-                shStaging: 172.80, // Annual
-                shStorage: 2.40, // Annual per GB
+                shWorker: 192, shStaging: 172.80, shStorage: 2.40,
                 packs: { 4: 580, 25: 3600, 50: 7000, 100: 12500, 200: 25000 }
             },
             CAD: {
                 standard: { annual: 528, monthly: 55.00 },
                 custom: { annual: 828, monthly: 85.00 },
-                shWorker: 1037, // Annual
-                shStaging: 260, // Annual
-                shStorage: 3.80, // Annual
+                shWorker: 1037, shStaging: 260, shStorage: 3.80,
                 packs: { 4: 850, 25: 5260, 50: 10300, 100: 18250, 200: 36500 }
             }
         };
@@ -145,6 +162,15 @@
             currency = val;
             document.getElementById('btnUSD').className = val === 'USD' ? 'px-6 py-2 rounded-lg font-bold bg-white shadow-sm text-purple-700' : 'px-6 py-2 rounded-lg font-bold text-slate-600';
             document.getElementById('btnCAD').className = val === 'CAD' ? 'px-6 py-2 rounded-lg font-bold bg-white shadow-sm text-purple-700' : 'px-6 py-2 rounded-lg font-bold text-slate-600';
+            calculate();
+        }
+
+        function setAPR(val) {
+            currentAPR = val;
+            [0.08, 0.10, 0.12].forEach(rate => {
+                const btn = document.getElementById('apr' + (rate * 100));
+                rate === val ? btn.classList.add('bg-slate-700') : btn.classList.remove('bg-slate-700');
+            });
             calculate();
         }
 
@@ -161,12 +187,9 @@
             const p = pricing[currency];
             const selPlan = p[plan];
             
-            // Implementation (15% off)
             const hours = document.getElementById('pack').value;
             const impCost = impOn ? (p.packs[hours] * 0.85) : 0;
             const impSavings = impOn ? (p.packs[hours] * 0.15) : 0;
-
-            // Hosting
             const shAnnual = shOn ? (parseInt(document.getElementById('workers').value) * p.shWorker) + 
                                      (parseInt(document.getElementById('staging').value) * p.shStaging) + 
                                      (parseInt(document.getElementById('storage').value) * p.shStorage) : 0;
@@ -179,15 +202,31 @@
                 const moCost = (selPlan.monthly * (1 - discountRate)) * users;
                 totalSoft = moCost;
                 timelineHtml = `<tr class="bg-emerald-50 font-bold"><td class="p-4">Month 1 (Promo)</td><td class="text-right">$${formatC(moCost + (shAnnual/12))}</td></tr>`;
-                document.getElementById('amort_toggle').disabled = true;
+                document.getElementById('finance_section').classList.add('hidden');
+                document.getElementById('side_finance_card').classList.add('hidden');
             } else {
-                document.getElementById('amort_toggle').disabled = false;
                 for (let i = 1; i <= term; i++) {
                     const isY1 = (i === 1);
                     const ySoft = isY1 ? (selPlan.annual * (1 - discountRate) * users) : (selPlan.annual * users);
                     if(isY1) softSavings = (selPlan.annual * users) - ySoft;
                     totalSoft += ySoft;
                     timelineHtml += `<tr class="border-b ${isY1 ? 'bg-purple-50 font-bold' : ''}"><td class="p-4">Year ${i}</td><td class="text-right">$${formatC(ySoft + shAnnual + (isY1 ? impCost : 0))}</td></tr>`;
+                }
+                
+                // Finance Logic (USD Only & Term >= 2)
+                const showFinance = (currency === 'USD' && term >= 2);
+                document.getElementById('finance_section').classList.toggle('hidden', !showFinance);
+                document.getElementById('side_finance_card').classList.toggle('hidden', !showFinance);
+                
+                if(showFinance) {
+                    const principal = totalSoft + (shAnnual * term) + impCost;
+                    const monthlyRate = currentAPR / 12;
+                    const numPayments = term * 12;
+                    const monthlyP = (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numPayments));
+                    document.getElementById('finance_payment').innerText = `$${formatC(monthlyP)}`;
+                    document.getElementById('side_finance_payment').innerText = `$${formatC(monthlyP)}`;
+                    document.getElementById('finance_term_label').innerText = numPayments;
+                    document.getElementById('finance_apr_label').innerText = (currentAPR * 100).toFixed(2) + "%";
                 }
             }
 
@@ -196,7 +235,6 @@
             document.getElementById('totalSavings').innerText = `$${formatC(softSavings + impSavings)}`;
             document.getElementById('timeline_body').innerHTML = timelineHtml;
 
-            // Amortized Math
             if(amortOn && term > 0) {
                 document.getElementById('amort_box').classList.remove('hidden');
                 document.getElementById('amort_value').innerText = `$${formatC(grandTotal / (term * 12))}`;
