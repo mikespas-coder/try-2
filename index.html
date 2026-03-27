@@ -22,7 +22,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6">
                 <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-                    <h2 class="text-xl font-bold mb-4 text-purple-700">1. Software & Contract</h2>
+                    <h2 class="text-xl font-bold mb-4 text-purple-700">1. Subscription & Contract</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-semibold">
                         <div>
                             <label class="block text-[10px] uppercase text-slate-400 mb-1">Plan</label>
@@ -82,20 +82,20 @@
                     </section>
                 </div>
 
-                <section id="finance_section" class="bg-slate-800 p-6 rounded-2xl shadow-xl text-white border-l-8 border-emerald-500 hidden">
+                <section id="finance_section" class="bg-slate-800 p-6 rounded-2xl shadow-xl text-white border-l-8 border-emerald-500 hidden text-sm font-bold">
                     <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
-                        <h2 class="text-xl font-bold">Financing (USD Only)</h2>
+                        <h2 class="text-xl font-bold uppercase tracking-tight">Financing Options</h2>
                         <div class="inline-flex rounded-md shadow-sm">
-                            <button onclick="setAPR(0.08)" id="apr8" class="px-4 py-2 text-xs font-bold border border-slate-600 rounded-l-lg bg-slate-700">8%</button>
-                            <button onclick="setAPR(0.10)" id="apr10" class="px-4 py-2 text-xs font-bold border-t border-b border-slate-600">10%</button>
-                            <button onclick="setAPR(0.12)" id="apr12" class="px-4 py-2 text-xs font-bold border border-slate-600 rounded-r-lg">12%</button>
+                            <button onclick="setAPR(0.08)" id="apr8" class="px-4 py-2 text-xs font-bold border border-slate-600 rounded-l-lg bg-slate-700">8% APR</button>
+                            <button onclick="setAPR(0.10)" id="apr10" class="px-4 py-2 text-xs font-bold border-t border-b border-slate-600">10% APR</button>
+                            <button onclick="setAPR(0.12)" id="apr12" class="px-4 py-2 text-xs font-bold border border-slate-600 rounded-r-lg">12% APR</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><p class="text-slate-400 text-xs uppercase">Monthly Payment</p><p id="finance_payment" class="text-3xl font-black text-emerald-400"></p></div>
+                        <div><p class="text-slate-400 text-xs uppercase">Est. Monthly Payment</p><p id="finance_payment" class="text-3xl font-black text-emerald-400"></p></div>
                         <div class="text-xs text-slate-300">
                             <p>Term: <span id="finance_term_label" class="font-bold text-white"></span> Months</p>
-                            <p>APR: <span id="finance_apr_label" class="font-bold text-emerald-400">8.00%</span></p>
+                            <p>Rate: <span id="finance_apr_label" class="font-bold text-emerald-400">8.00%</span></p>
                         </div>
                     </div>
                 </section>
@@ -107,7 +107,7 @@
                             <thead>
                                 <tr class="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-widest">
                                     <th class="py-3 px-2">Period</th>
-                                    <th class="py-3 text-center">Software</th>
+                                    <th class="py-3 text-center">Subscription</th>
                                     <th class="py-3 text-center">Hosting</th>
                                     <th class="py-3 text-center">Impl.</th>
                                     <th class="py-3 text-right">Total</th>
@@ -143,6 +143,12 @@
                     <div id="side_finance_card" class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 hidden">
                         <p class="text-[10px] font-black uppercase text-slate-400 mb-1">Financed Monthly</p>
                         <p id="side_finance_payment" class="text-2xl font-bold text-emerald-400"></p>
+                    </div>
+
+                    <div class="space-y-4 text-sm border-t border-slate-800 pt-6 mb-6">
+                        <div class="flex justify-between text-slate-400">Subscription Subtotal<span id="side_soft" class="text-white font-mono"></span></div>
+                        <div class="flex justify-between text-slate-400">Hosting Subtotal<span id="side_sh" class="text-white font-mono"></span></div>
+                        <div class="flex justify-between text-slate-400">Implementation<span id="side_imp" class="text-white font-mono text-emerald-400"></span></div>
                     </div>
 
                     <button onclick="window.print()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-xl shadow-lg">PRINT PDF</button>
@@ -216,7 +222,7 @@
                 const sDisc = (selPlan.monthly * (1 - discountRate)) * users;
                 const hMo = shAnnual / 12;
                 totalSoft = sDisc;
-                timelineHtml = `<tr class="bg-emerald-50 font-bold"><td class="p-4">Month 1</td><td class="text-center">$${formatC(sDisc)}</td><td class="text-center">$${formatC(hMo)}</td><td class="text-center">$${formatC(impCost)}</td><td class="text-right">$${formatC(sDisc + hMo + impCost)}</td></tr>`;
+                timelineHtml = `<tr class="bg-emerald-50 font-bold"><td class="p-4 px-2">Month 1</td><td class="text-center font-mono">$${formatC(sDisc)}</td><td class="text-center font-mono">$${formatC(hMo)}</td><td class="text-center font-mono">$${formatC(impCost)}</td><td class="text-right font-mono">$${formatC(sDisc + hMo + impCost)}</td></tr>`;
                 document.getElementById('finance_section').classList.add('hidden');
             } else {
                 for (let i = 1; i <= term; i++) {
@@ -225,7 +231,7 @@
                     if(isY1) softSavings = (selPlan.annual * users) - ySoft;
                     totalSoft += ySoft;
                     const yImp = isY1 ? impCost : 0;
-                    timelineHtml += `<tr class="border-b ${isY1 ? 'bg-purple-50 font-bold' : ''}"><td class="p-4">Year ${i}</td><td class="text-center">$${formatC(ySoft)}</td><td class="text-center">$${formatC(shAnnual)}</td><td class="text-center">$${formatC(yImp)}</td><td class="text-right">$${formatC(ySoft + shAnnual + yImp)}</td></tr>`;
+                    timelineHtml += `<tr class="border-b ${isY1 ? 'bg-purple-50 font-bold' : ''}"><td class="p-4 px-2">Year ${i}</td><td class="text-center font-mono">$${formatC(ySoft)}</td><td class="text-center font-mono">$${formatC(shAnnual)}</td><td class="text-center font-mono">$${formatC(yImp)}</td><td class="text-right font-mono">$${formatC(ySoft + shAnnual + yImp)}</td></tr>`;
                 }
                 
                 const showFinance = (currency === 'USD' && term >= 2);
@@ -255,6 +261,11 @@
             } else {
                 document.getElementById('amort_box').classList.add('hidden');
             }
+
+            // Sync Sidebar
+            document.getElementById('side_soft').innerText = `$${formatC(totalSoft)}`;
+            document.getElementById('side_sh').innerText = `$${formatC(shAnnual * Math.max(1, term))}`;
+            document.getElementById('side_imp').innerText = `$${formatC(impCost)}`;
         }
         calculate();
     </script>
